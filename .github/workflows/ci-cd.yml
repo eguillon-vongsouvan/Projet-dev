@@ -70,4 +70,4 @@ jobs:
 
       - name: SonarLint (optionnel)
         if: ${{ secrets.SONAR_TOKEN != '' }}
-        run: echo "Sonar token fourni: étape SonarLint à configurer selon ton environnement."
+        run: | echo "Sonar token fourni: étape SonarLint à configurer selon ton environnement."
