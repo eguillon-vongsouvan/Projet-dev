@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Emploi du temps{% endblock %}
+
+{% block content %}
+  <p class="h2">Emploi du temps</p>
+
+  <div class="chips" role="tablist" aria-label="Filtrer par jour">
+    <button class="chip active" type="button" data-chip-day="ALL">Tous</button>
+    <button class="chip" type="button" data-chip-day="1">Lun</button>
+    <button class="chip" type="button" data-chip-day="2">Mar</button>
+    <button class="chip" type="button" data-chip-day="3">Mer</button>
+    <button class="chip" type="button" data-chip-day="4">Jeu</button>
+    <button class="chip" type="button" data-chip-day="5">Ven</button>
+    <button class="chip" type="button" data-chip-day="6">Sam</button>
+    <button class="chip" type="button" data-chip-day="7">Dim</button>
+  </div>
+
+  {% if rows and rows|length > 0 %}
+    <div id="calendar" class="cal" aria-label="Calendrier hebdomadaire">
+      <div class="cal-header">
+        <div class="cal-corner"></div>
+        <div class="cal-day" data-day-col="1">Lun</div>
+        <div class="cal-day" data-day-col="2">Mar</div>
+        <div class="cal-day" data-day-col="3">Mer</div>
+        <div class="cal-day" data-day-col="4">Jeu</div>
+        <div class="cal-day" data-day-col="5">Ven</div>
+        <div class="cal-day" data-day-col="6">Sam</div>
+        <div class="cal-day" data-day-col="7">Dim</div>
+      </div>
+
+      <div class="cal-body">
+        <div class="cal-times" id="calTimes"></div>
+        <div class="cal-grid" id="calGrid">
+          <div class="cal-col" data-day-col="1"></div>
+          <div class="cal-col" data-day-col="2"></div>
+          <div class="cal-col" data-day-col="3"></div>
+          <div class="cal-col" data-day-col="4"></div>
+          <div class="cal-col" data-day-col="5"></div>
+          <div class="cal-col" data-day-col="6"></div>
+          <div class="cal-col" data-day-col="7"></div>
+        </div>
+      </div>
+
+      <div id="calEvents" hidden>
+        {% for r in rows %}
+          <span
+            data-day="{{ r.day_of_week }}"
+            data-start="{{ r.start_time }}"
+            data-end="{{ r.end_time }}"
+            data-class="{{ r.class_name }}"
+            data-location="{{ r.location or '' }}"
+          ></span>
+        {% endfor %}
+      </div>
+    </div>
+  {% else %}
+    <p>Aucun créneau.</p>
+  {% endif %}
+{% endblock %}
+

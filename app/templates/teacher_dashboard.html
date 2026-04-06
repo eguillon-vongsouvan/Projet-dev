@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Professeur{% endblock %}
+
+{% block content %}
+  <p class="h2">Professeur — Classes & Évaluations</p>
+
+  <p class="h3">Mes classes</p>
+  {% if classes %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Classe</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in classes %}
+          <tr>
+            <td>{{ c.id }}</td>
+            <td>{{ c.name }}</td>
+            <td>
+              <div class="actions">
+                <details>
+                  <summary>Évaluations / Notes</summary>
+                  <div class="details-body">
+                    <form class="form" method="post" action="{{ url_for('teacher.create_assessment', class_id=c.id) }}">
+                      {{ form_assessment.hidden_tag() }}
+                      <div class="row">
+                        <div class="field">
+                          <label>Titre</label>
+                          <input name="title" type="text" placeholder="ex: Contrôle 2" />
+                        </div>
+                        <div class="field">
+                          <label>Date limite</label>
+                          <input name="due_date" type="date" />
+                        </div>
+                        <button class="btn secondary" type="submit">Créer</button>
+                      </div>
+                    </form>
+                    <a href="{{ url_for('teacher.list_assessments_by_class', class_id=c.id) }}">Voir / saisir les notes</a>
+                  </div>
+                </details>
+
+                <details>
+                  <summary>Devoirs</summary>
+                  <div class="details-body">
+                    <form class="form" method="post" action="{{ url_for('teacher.create_homework', class_id=c.id) }}">
+                      {{ form_homework.hidden_tag() }}
+                      <div class="field">
+                        <label>Titre</label>
+                        <input name="title" type="text" placeholder="ex: TP DevSecOps — ZAP" />
+                      </div>
+                      <div class="field">
+                        <label>Description</label>
+                        <textarea name="description" rows="3" placeholder="Consignes, livrables attendus, etc."></textarea>
+                      </div>
+                      <div class="row">
+                        <div class="field">
+                          <label>Date limite</label>
+                          <input name="due_date" type="date" />
+                        </div>
+                        <button class="btn secondary" type="submit">Publier</button>
+                      </div>
+                    </form>
+                  </div>
+                </details>
+
+                <details>
+                  <summary>Absences</summary>
+                  <div class="details-body">
+                    <form class="form" method="post" action="{{ url_for('teacher.record_absence', class_id=c.id) }}">
+                      {{ form_absence.hidden_tag() }}
+                      <div class="row">
+                        <div class="field">
+                          <label>Étudiant (username)</label>
+                          <input name="student_username" type="text" placeholder="ex: stud1" />
+                        </div>
+                        <div class="field">
+                          <label>Date</label>
+                          <input name="absence_date" type="date" />
+                        </div>
+                        <div class="field">
+                          <label>Motif</label>
+                          <input name="reason" type="text" placeholder="optionnel" />
+                        </div>
+                        <button class="btn secondary" type="submit">Enregistrer</button>
+                      </div>
+                    </form>
+                  </div>
+                </details>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>Aucune classe attribuée.</p>
+  {% endif %}
+{% endblock %}
+

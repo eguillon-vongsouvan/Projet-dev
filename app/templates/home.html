@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block content %}
+  <p class="h2">Accueil</p>
+
+  <div class="grid cols-2" style="margin-top:12px;">
+    <div class="card" style="box-shadow:none;">
+      <div class="card-body">
+        <p class="h3">Accès rapide</p>
+        {% if session.get('role') == 'ADMIN' %}
+          <p class="note"><a href="{{ url_for('admin.dashboard') }}">→ Administration (users, ban, classes)</a></p>
+        {% elif session.get('role') == 'PROFESSOR' %}
+          <p class="note"><a href="{{ url_for('teacher.dashboard') }}">→ Tableau de bord professeur</a></p>
+        {% elif session.get('role') == 'STUDENT' %}
+          <p class="note"><a href="{{ url_for('student.dashboard') }}">→ Tableau de bord étudiant</a></p>
+        {% elif session.get('role') == 'LOVERBOY' %}
+          <p class="note"><a href="{{ url_for('love.home') }}">→ Rencontres</a></p>
+          <p class="note"><a href="{{ url_for('love.matches') }}">→ Matchs</a></p>
+          <p class="note"><a href="{{ url_for('love.profile') }}">→ Mon profil</a></p>
+        {% endif %}
+        <p class="note"><a href="{{ url_for('schedule.schedule') }}">→ Emploi du temps</a></p>
+      </div>
+    </div>
+
+    <div class="card" style="box-shadow:none;">
+      <div class="card-body">
+        <p class="h3">Vidéo (YouTube)</p>
+        <div style="position:relative; width:100%; padding-top:56.25%; border-radius:16px; overflow:hidden; border:1px solid var(--border); background:#fff;">
+          <iframe
+            title="YouTube"
+            src="https://www.youtube-nocookie.com/embed/5qap5aO4i9A"
+            style="position:absolute; inset:0; width:100%; height:100%; border:0;"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+          ></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="h3" style="margin-top:18px;">Relaxation</p>
+
+  <div class="grid cols-2">
+    <div class="card" style="box-shadow:none;">
+      <div class="card-body">
+        <p class="h3">Livres (focus / calme)</p>
+        <ul style="margin:0; padding-left:18px;">
+          <li><strong>Deep Work</strong> — Cal Newport</li>
+          <li><strong>Atomic Habits</strong> — James Clear</li>
+          <li><strong>Le pouvoir du moment présent</strong> — Eckhart Tolle</li>
+          <li><strong>Ikigai</strong> — Héctor García & Francesc Miralles</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" style="box-shadow:none;">
+      <div class="card-body">
+        <p class="h3">ASMR / Sons</p>
+        <ul style="margin:0; padding-left:18px;">
+          <li>Bruit blanc / pluie / café</li>
+          <li>Respiration 4-7-8</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

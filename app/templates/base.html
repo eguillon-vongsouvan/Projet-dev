@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}DevSecOps{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='surprise.js') }}"></script>
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
+    {% block extra_scripts %}{% endblock %}
+  </head>
+  <body>
+    <div class="app {% if session.get('username') %}app-dashboard-bg{% endif %}">
+      <div class="container">
+        <div class="header">
+          <div class="brand">
+            <div class="logo" aria-hidden="true"></div>
+            <div>
+              <p class="title">Plateforme académique (sécurisée)</p>
+              <p class="subtitle">GCS2 — UE7-2 DevSecOps • Semaine 1</p>
+            </div>
+          </div>
+          <div class="top-actions">
+            {% if session.get('username') %}
+              <span class="pill">Connecté : <strong>{{ session.get('username') }}</strong> ({{ session.get('role') }})</span>
+              <button
+                id="surpriseBtn"
+                class="btn secondary"
+                type="button"
+                data-surprise-image="{{ config.get('SURPRISE_IMAGE_URL') }}"
+              >
+                Surprise (1/2)
+              </button>
+              <form method="post" action="{{ url_for('auth.logout') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                <button class="btn secondary" type="submit">Se déconnecter</button>
+              </form>
+            {% else %}
+              <span class="pill">Authentification + RBAC côté serveur</span>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if session.get('username') %}
+          <nav class="nav" aria-label="Navigation principale">
+            <a href="{{ url_for('main.index') }}">Accueil</a>
+            {% if session.get('role') == 'ADMIN' %}
+              <a href="{{ url_for('admin.dashboard') }}">Admin</a>
+              <a href="{{ url_for('schedule.schedule') }}">Emploi du temps</a>
+            {% elif session.get('role') == 'PROFESSOR' %}
+              <a href="{{ url_for('teacher.dashboard') }}">Tableau de bord</a>
+              <a href="{{ url_for('schedule.schedule') }}">Emploi du temps</a>
+            {% elif session.get('role') == 'STUDENT' %}
+              <a href="{{ url_for('student.dashboard') }}">Tableau de bord</a>
+              <a href="{{ url_for('schedule.schedule') }}">Emploi du temps</a>
+            {% elif session.get('role') == 'LOVERBOY' %}
+              <a href="{{ url_for('love.home') }}">Rencontres</a>
+              <a href="{{ url_for('love.matches') }}">Matchs</a>
+              <a href="{{ url_for('love.profile') }}">Profil</a>
+            {% endif %}
+          </nav>
+        {% endif %}
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash {% if category == 'error' %}flash-error{% elif category == 'success' %}flash-success{% endif %}" data-category="{{ category }}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div class="card">
+          <div class="card-body">
+            {% block content %}{% endblock %}
+          </div>
+        </div>
+
+        <div class="footer"></div>
+      </div>
+    </div>
+  </body>
+</html>
+

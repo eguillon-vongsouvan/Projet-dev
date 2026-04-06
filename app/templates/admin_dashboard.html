@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}Admin{% endblock %}
+
+{% block content %}
+  <p class="h2">Admin — Classes & Sécurité</p>
+
+  <div class="grid cols-2">
+    <div>
+      <p class="h3">Créer un compte</p>
+      <form class="form" method="post" action="{{ url_for('admin.create_user') }}">
+        {{ form_user.hidden_tag() }}
+        <div class="field">
+          <label>Nom d'utilisateur</label>
+          {{ form_user.username(size=32) }}
+        </div>
+        <div class="field">
+          <label>Mot de passe</label>
+          {{ form_user.password(size=32) }}
+        </div>
+        <div class="field">
+          <label>Rôle</label>
+          {{ form_user.role() }}
+        </div>
+        <button class="btn" type="submit">Créer</button>
+      </form>
+    </div>
+
+    <div>
+      <p class="h3">Créer une classe</p>
+      <form class="form" method="post" action="{{ url_for('admin.create_class') }}">
+        {{ form_class.hidden_tag() }}
+        <div class="field">
+          <label>Nom de la classe</label>
+          {{ form_class.name(size=32) }}
+        </div>
+        <div class="field">
+          <label>Professeur (username, optionnel)</label>
+          {{ form_class.teacher_username(size=32) }}
+        </div>
+        <button class="btn" type="submit">Créer classe</button>
+      </form>
+    </div>
+  </div>
+
+  <p class="h3">Utilisateurs</p>
+  {% if users %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Username</th>
+          <th>Rôle</th>
+          <th>Statut</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+          <tr>
+            <td>{{ u.id }}</td>
+            <td><strong>{{ u.username }}</strong></td>
+            <td>{{ u.role }}</td>
+            <td>
+              {% if u.is_banned %}
+                <span class="pill" style="border-color: rgba(185,28,28,.25); color: #b91c1c;">Désactivé</span>
+              {% else %}
+                <span class="pill" style="border-color: rgba(21,128,61,.25); color: #15803d;">Actif</span>
+              {% endif %}
+            </td>
+            <td>
+              <form method="post" action="{{ url_for('admin.toggle_ban', user_id=u.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                <button class="btn secondary" type="submit">
+                  {% if u.is_banned %}Réactiver{% else %}Ban{% endif %}
+                </button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>Aucun utilisateur.</p>
+  {% endif %}
+
+  <p class="h3">Classes existantes</p>
+  {% if classes %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Classe</th>
+          <th>Professeur</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in classes %}
+          <tr>
+            <td>{{ c.id }}</td>
+            <td>{{ c.name }}</td>
+            <td>{{ c.teacher_username or "-" }}</td>
+            <td>
+              <div class="actions">
+                <details>
+                  <summary>Affecter un étudiant</summary>
+                  <div class="details-body">
+                    <form class="form" method="post" action="{{ url_for('admin.assign_student', class_id=c.id) }}">
+                      {{ csrf_token() }}
+                      <div class="row">
+                        <div class="field">
+                          <label>Username étudiant</label>
+                          <input name="student_username" placeholder="ex: stud2" />
+                        </div>
+                        <button class="btn secondary" type="submit">Assigner</button>
+                      </div>
+                    </form>
+                  </div>
+                </details>
+
+                <details>
+                  <summary>Ajouter un créneau (EDT)</summary>
+                  <div class="details-body">
+                    <form class="form" method="post" action="{{ url_for('admin.create_schedule', class_id=c.id) }}">
+                      {{ csrf_token() }}
+                      <div class="row">
+                        <div class="field">
+                          <label>Jour (1-7)</label>
+                          <input name="day_of_week" type="number" min="1" max="7" value="1" />
+                        </div>
+                        <div class="field">
+                          <label>Début</label>
+                          <input name="start_time" type="text" placeholder="09:00" />
+                        </div>
+                        <div class="field">
+                          <label>Fin</label>
+                          <input name="end_time" type="text" placeholder="10:30" />
+                        </div>
+                        <div class="field">
+                          <label>Lieu</label>
+                          <input name="location" type="text" placeholder="Salle A" />
+                        </div>
+                        <button class="btn secondary" type="submit">Ajouter</button>
+                      </div>
+                    </form>
+                  </div>
+                </details>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>Aucune classe.</p>
+  {% endif %}
+
+  <p class="note">Astuce : tous les formulaires sont protégés par CSRF.</p>
+{% endblock %}
+

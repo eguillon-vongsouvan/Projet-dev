@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}Mon tableau de bord{% endblock %}
+
+{% block extra_scripts %}
+  <script defer src="{{ url_for('static', filename='snake.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='blackjack.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='flashcards.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+  <details open>
+    <summary>Emploi du temps</summary>
+    {% if schedule %}
+      <div class="mini-cards">
+        {% for s in schedule %}
+          {% if loop.index0 < 5 %}
+            <div class="mini-card">
+              <div class="mini-card-title">{{ s.class_name }}</div>
+              <div class="mini-card-sub">
+                <span class="chip active">{{ s.day_of_week }}</span>
+                <span class="chip">{{ s.start_time }} - {{ s.end_time }}</span>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      {% if schedule|length > 5 %}
+        <p class="muted">… et {{ schedule|length - 5 }} autres créneaux.</p>
+      {% endif %}
+    {% else %}
+      <p>Aucun emploi du temps.</p>
+    {% endif %}
+  </details>
+
+  <details open>
+    <summary>Mes notes</summary>
+    {% if grades %}
+      <div class="mini-cards cols-2">
+        {% for g in grades %}
+          {% if loop.index0 < 5 %}
+            <div class="mini-card">
+              <div class="mini-card-title">{{ g.title }}</div>
+              <div class="mini-card-sub">
+                <span class="chip active">Note : {{ g.grade }}</span>
+                <span class="chip mini-card-muted">{{ g.due_date or "-" }}</span>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      {% if grades|length > 5 %}
+        <p class="muted">… et {{ grades|length - 5 }} autres notes.</p>
+      {% endif %}
+    {% else %}
+      <p>Aucune note.</p>
+    {% endif %}
+  </details>
+
+  <details>
+    <summary>Historique Blackjack</summary>
+    {% if blackjack_history %}
+      <div class="mini-cards">
+        {% for h in blackjack_history %}
+          {% if loop.index0 < 5 %}
+            <div class="mini-card">
+              <div class="mini-card-title">Score : {{ h.score }}</div>
+              <div class="mini-card-sub">
+                <span class="chip active">{{ h.result }}</span>
+                <span class="chip mini-card-muted">{{ h.created_at }}</span>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      {% if blackjack_history|length > 5 %}
+        <p class="muted">… et {{ blackjack_history|length - 5 }} autres parties.</p>
+      {% endif %}
+    {% else %}
+      <p>Aucune victoire enregistrée.</p>
+    {% endif %}
+  </details>
+
+  <details>
+    <summary>Mes devoirs</summary>
+    {% if homeworks %}
+      <div class="mini-cards">
+        {% for h in homeworks %}
+          {% if loop.index0 < 5 %}
+            <div class="mini-card">
+              <div class="mini-card-title">{{ h.title }}</div>
+              <div class="mini-card-sub">
+                <span class="chip active">{{ h.class_name }}</span>
+                <span class="chip mini-card-muted">{{ h.due_date or "-" }}</span>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      {% if homeworks|length > 5 %}
+        <p class="muted">… et {{ homeworks|length - 5 }} autres devoirs.</p>
+      {% endif %}
+    {% else %}
+      <p>Aucun devoir.</p>
+    {% endif %}
+  </details>
+
+  <details>
+    <summary>Mes absences</summary>
+    {% if absences %}
+      <div class="mini-cards">
+        {% for a in absences %}
+          {% if loop.index0 < 5 %}
+            <div class="mini-card">
+              <div class="mini-card-title">{{ a.absence_date }}</div>
+              <div class="mini-card-sub">
+                <span class="chip active">{{ a.class_name }}</span>
+                <span class="chip mini-card-muted">{{ a.reason or "-" }}</span>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      {% if absences|length > 5 %}
+        <p class="muted">… et {{ absences|length - 5 }} autres entrées.</p>
+      {% endif %}
+    {% else %}
+      <p>Aucune absence enregistrée.</p>
+    {% endif %}
+  </details>
+
+  <details>
+    <summary>Pause — Jeux</summary>
+    <p class="h3">Snake</p>
+    <div class="snake-wrap">
+      <div class="snake-top">
+        <div class="pill">
+          Score : <strong id="snakeScore">0</strong>
+          <span class="muted">•</span>
+          Best : <strong id="snakeBest">0</strong>
+        </div>
+        <button id="snakeToggle" class="btn secondary" type="button">Démarrer</button>
+      </div>
+
+      <canvas id="snakeCanvas" class="snake-canvas" width="420" height="420" aria-label="Jeu Snake"></canvas>
+    </div>
+
+    <p class="h3">BlackJack</p>
+    <div id="blackjack" class="bj-wrap">
+      <div class="bj-top">
+        <div class="pill">
+          Série de victoires : <strong id="bjBest">0</strong>
+          <span class="muted">•</span>
+          Joueur: <strong id="bjPlayerScore">0</strong>
+          <span class="muted">•</span>
+          Croupier: <strong id="bjDealerScore">??</strong>
+        </div>
+        <div class="bj-actions">
+          <button id="bjNew" class="btn secondary" type="button">Nouvelle partie</button>
+          <button id="bjHit" class="btn secondary" type="button">Tirer</button>
+          <button id="bjStand" class="btn secondary" type="button">Rester</button>
+        </div>
+      </div>
+
+      <div class="bj-board">
+        <div class="bj-hands">
+          <div class="bj-hand">
+            <div class="bj-hand-title">
+              <strong>Joueur</strong>
+              <span class="badge">Toi</span>
+            </div>
+            <div id="bjPlayerCards" class="bj-cards"></div>
+          </div>
+
+          <div class="bj-hand">
+            <div class="bj-hand-title">
+              <strong>Croupier</strong>
+              <span class="badge">Dealer</span>
+            </div>
+            <div id="bjDealerCards" class="bj-cards"></div>
+          </div>
+        </div>
+
+        <div class="bj-status" style="margin-top:12px;" id="bjStatus"></div>
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary>Flashcards — brainrot</summary>
+    <div id="flashcards" class="fc-wrap">
+      <div class="fc-top">
+        <div class="pill">Carte <strong id="fcCounter">0/0</strong></div>
+        <div class="bj-actions">
+          <button id="fcShuffle" class="btn secondary" type="button">Mélanger</button>
+          <button id="fcFlip" class="btn secondary" type="button">Retourner</button>
+          <button id="fcNext" class="btn secondary" type="button">Suivante</button>
+        </div>
+      </div>
+
+      <div class="fc-card">
+        <div class="fc-inner" role="group" aria-label="Flashcard">
+          <div class="fc-face fc-front">
+            <div class="fc-text" id="fcFront"></div>
+          </div>
+          <div class="fc-face fc-back">
+            <div class="fc-text" id="fcBack"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </details>
+{% endblock %}
+

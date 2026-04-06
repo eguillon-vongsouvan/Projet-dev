@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block extra_scripts %}
+  <script defer src="{{ url_for('static', filename='voice-assistant.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+  <div class="login-hero">
+    <div>
+      <div class="card-header">
+        <p class="h2">Connexion</p>
+      </div>
+
+      <form id="loginForm" class="form" method="post" action="{{ url_for('auth.login') }}">
+        {{ form.hidden_tag() }}
+
+        <div class="field">
+          <label for="username">Nom d'utilisateur</label>
+          {{ form.username(id="username", size=32, autocomplete="username") }}
+        </div>
+
+        <div class="field">
+          <label for="password">Mot de passe</label>
+          {{ form.password(id="password", size=32, autocomplete="current-password") }}
+        </div>
+
+        <button class="btn" type="submit">Se connecter</button>
+      </form>
+    </div>
+
+    <div id="voiceAssistant" class="mascot" aria-label="Assistant vocal">
+      <div class="mascot-bob">
+        <div class="mascot-face" aria-hidden="true">
+          <div class="mascot-eye left"></div>
+          <div class="mascot-eye right"></div>
+          <div class="mascot-mouth"></div>
+        </div>
+        <div class="mascot-title">Assistant vocal</div>
+        <div id="vaStatus" class="mascot-help"></div>
+        <button id="vaToggle" class="btn secondary" type="button">Parler</button>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

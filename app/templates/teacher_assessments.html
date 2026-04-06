@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Évaluations{% endblock %}
+
+{% block content %}
+  <p class="h2">Évaluations — Classe {{ class_id }}</p>
+
+  <p class="h3">Créer une évaluation</p>
+  <form class="form" method="post" action="{{ url_for('teacher.create_assessment', class_id=class_id) }}">
+    {{ create_form.hidden_tag() }}
+    <div class="row">
+      <div class="field">
+        <label>Titre</label>
+        <input name="title" type="text" />
+      </div>
+      <div class="field">
+        <label>Date limite (optionnel)</label>
+        <input name="due_date" type="date" />
+      </div>
+      <button class="btn" type="submit">Créer</button>
+    </div>
+  </form>
+
+  <p class="h3">Liste</p>
+  {% if assessments %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Titre</th>
+          <th>Date limite</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in assessments %}
+          <tr>
+            <td>{{ a.id }}</td>
+            <td>{{ a.title }}</td>
+            <td>{{ a.due_date or "-" }}</td>
+            <td>
+              <a href="{{ url_for('teacher.assessment_grades', assessment_id=a.id) }}">Saisir les notes</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>Aucune évaluation.</p>
+  {% endif %}
+{% endblock %}
+

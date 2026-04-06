@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Saisie des notes{% endblock %}
+
+{% block content %}
+  <p class="h2">Notes — {{ assessment.title }}</p>
+
+  <form class="form" method="post" action="{{ url_for('teacher.assessment_grades', assessment_id=assessment.id) }}">
+    {{ csrf_form.hidden_tag() }}
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Étudiant</th>
+          <th>Note (0-20)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in students %}
+          <tr>
+            <td>{{ s.username }}</td>
+            <td>
+              <input
+                name="grade_{{ s.id }}"
+                type="text"
+                inputmode="decimal"
+                value="{{ grade_map.get(s.id) or '' }}"
+              />
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <button class="btn" type="submit">Enregistrer</button>
+  </form>
+{% endblock %}
+
