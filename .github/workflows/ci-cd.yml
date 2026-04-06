@@ -1,45 +1,48 @@
 name: CI-CD DevSecOps (Semaine 1)
- 
+
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
- 
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-test-and-security:
     runs-on: ubuntu-latest
- 
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
- 
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
- 
+
       - name: Install dependencies (dev)
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
- 
+
       - name: Lint (flake8)
         run: flake8 .
- 
+
       - name: Dependency audit (pip-audit)
         run: pip-audit -r requirements.txt
- 
+
       - name: SAST (bandit)
         run: bandit -r app -lll
- 
+
       - name: Build Docker images
         run: docker compose build
- 
+
       - name: Start app (docker compose)
         run: docker compose up -d
- 
+
       - name: Wait for web to be ready
         run: |
           for i in {1..30}; do
@@ -48,26 +51,28 @@ jobs:
           done
           echo "App did not become ready in time" >&2
           exit 1
- 
+
       - name: DAST (OWASP ZAP baseline)
         run: |
           docker run --rm --network host \
-            -v "${{ github.workspace }}:/zap/wrk" \
+            -v "${{ github.workspace }}:/zap/wrk:rw" \
             owasp/zap2docker-stable:2.16.0 \
             zap-baseline.py \
             -t http://localhost:5000 \
             -r zap-report.html \
-            -x zap-report.xml
- 
+            -x zap-report.xml \
+            -I
+
       - name: Upload ZAP reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: zap-reports
           path: |
-            zap-report.html
-            zap-report.xml
- 
+            ${{ github.workspace }}/zap-report.html
+            ${{ github.workspace }}/zap-report.xml
+          if-no-files-found: warn
+
       - name: SonarLint (optionnel)
         if: env.SONAR_TOKEN != ''
         env:
