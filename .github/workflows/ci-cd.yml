@@ -55,8 +55,8 @@ jobs:
             -v "${{ github.workspace }}:/zap/wrk" \
             owasp/zap2docker-stable:2.16.0 \
             zap-baseline.py \
-            -t http://localhost:5000
-            -r zap-report.html
+            -t http://localhost:5000 \
+            -r zap-report.html \
             -x zap-report.xml
 
       - name: Upload ZAP reports
@@ -71,4 +71,3 @@ jobs:
       - name: SonarLint (optionnel)
         if: ${{ secrets.SONAR_TOKEN != '' }}
         run: echo "Sonar token fourni: étape SonarLint à configurer selon ton environnement."
-
